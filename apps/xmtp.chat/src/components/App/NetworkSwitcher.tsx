@@ -1,7 +1,7 @@
 import { ActionIcon, Box, Group, Menu, Text, Tooltip } from "@mantine/core";
 import { useMemo, useState } from "react";
 import { useSwitchChain } from "wagmi";
-import { arbitrum, arbitrumSepolia } from "wagmi/chains";
+import { injectiveMainnet, injectiveTestnet } from "@/helpers/chains";
 import { type ChainType, useSettings } from "@/hooks/useSettings";
 
 type NetworkInfo = {
@@ -17,22 +17,22 @@ type NetworkInfo = {
 
 const NETWORKS: NetworkInfo[] = [
   {
-    id: arbitrum.id,
-    key: "arbitrum",
-    name: "Arbitrum One",
-    shortName: "ARB",
-    color: "#28A0F0",
-    gradient: "linear-gradient(135deg, #28a0f0, #1b4f72)",
-    icon: "▲",
+    id: injectiveMainnet.id,
+    key: "injective",
+    name: "Injective",
+    shortName: "INJ",
+    color: "#00F2EA",
+    gradient: "linear-gradient(135deg, #00f2ea, #00d4ff)",
+    icon: "◆",
   },
   {
-    id: arbitrumSepolia.id,
-    key: "arbitrumSepolia",
-    name: "Arbitrum Sepolia",
-    shortName: "ARB-S",
-    color: "#5c9fd4",
-    gradient: "linear-gradient(135deg, #5c9fd4, #3a6d99)",
-    icon: "△",
+    id: injectiveTestnet.id,
+    key: "injectiveTestnet",
+    name: "Injective Testnet",
+    shortName: "INJ-T",
+    color: "#00b8b0",
+    gradient: "linear-gradient(135deg, #00b8b0, #009999)",
+    icon: "◇",
     testnet: true,
   },
 ];

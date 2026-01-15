@@ -20,7 +20,7 @@ export const Welcome = () => {
       {/* Logo */}
       <Image
         src={logo}
-        alt="Arbisper"
+        alt="Omisper"
         w={80}
         h={80}
         fit="contain"
@@ -32,13 +32,13 @@ export const Welcome = () => {
 
       {/* Title and subtitle */}
       <Title order={1} className="welcome-title">
-        Arbisper
+        Omisper
       </Title>
       <Text className="welcome-subtitle">
         Decentralized P2P Messaging
         <br />
         <Text span size="sm" c="dimmed">
-          Powered by XMTP • Secured on Arbitrum
+          Powered by XMTP • Secured on Injective
         </Text>
       </Text>
 

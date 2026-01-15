@@ -1,11 +1,11 @@
 import { useLocalStorage } from "@mantine/hooks";
 import { type ClientOptions, type XmtpEnv } from "@xmtp/browser-sdk";
 import type { Hex } from "viem";
-import { arbitrum } from "wagmi/chains";
+import { injectiveMainnet } from "@/helpers/chains";
 import type { ConnectorString } from "@/hooks/useConnectWallet";
 
 // chain type for network switching
-export type ChainType = "arbitrum" | "arbitrumSepolia";
+export type ChainType = "injective" | "injectiveTestnet";
 
 export const useSettings = () => {
   const [environment, setEnvironment] = useLocalStorage<XmtpEnv>({
@@ -48,16 +48,16 @@ export const useSettings = () => {
     defaultValue: false,
     getInitialValueInEffect: false,
   });
-  // default to Arbitrum mainnet
+  // default to Injective mainnet
   const [blockchain, setBlockchain] = useLocalStorage<number>({
     key: "XMTP_BLOCKCHAIN",
-    defaultValue: arbitrum.id,
+    defaultValue: injectiveMainnet.id,
     getInitialValueInEffect: false,
   });
   // selected chain type for display
   const [selectedChain, setSelectedChain] = useLocalStorage<ChainType>({
     key: "XMTP_SELECTED_CHAIN",
-    defaultValue: "arbitrum",
+    defaultValue: "injective",
     getInitialValueInEffect: false,
   });
   const [connector, setConnector] = useLocalStorage<ConnectorString>({

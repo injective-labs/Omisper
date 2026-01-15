@@ -6,9 +6,9 @@ export const AppFooter: React.FC = () => {
     <Group justify="flex-start" align="center" wrap="nowrap">
       <Box>
         <Flex align="center" py="md" display="inline-flex">
-          <Image src={logo} alt="Arbisper" w="24px" h="24px" fit="contain" />
+          <Image src={logo} alt="Omisper" w="24px" h="24px" fit="contain" />
           <Text size="xl" fw={700} ml="xs">
-            Arbisper
+            Omisper
           </Text>
         </Flex>
       </Box>

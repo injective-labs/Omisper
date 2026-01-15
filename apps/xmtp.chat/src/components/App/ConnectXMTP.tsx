@@ -73,7 +73,7 @@ export const ConnectXMTP = ({ onDisconnectWallet }: ConnectXMTPProps) => {
           fontWeight: 600,
           height: 48,
         }}>
-        Enter Arbisper
+        Enter Omisper
       </Button>
     </Stack>
   );

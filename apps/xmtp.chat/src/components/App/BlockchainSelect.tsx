@@ -1,13 +1,13 @@
 import { Group, NativeSelect, Text, Tooltip } from "@mantine/core";
 import { useMemo, useState } from "react";
 import { useSwitchChain } from "wagmi";
-import { arbitrum, arbitrumSepolia } from "wagmi/chains";
+import { injectiveMainnet, injectiveTestnet } from "@/helpers/chains";
 import { useSettings } from "@/hooks/useSettings";
 
 // all allowed chains
 const ALLOWED_CHAINS: number[] = [
-  arbitrum.id,
-  arbitrumSepolia.id,
+  injectiveMainnet.id,
+  injectiveTestnet.id,
 ];
 
 export const BlockchainSelect: React.FC = () => {

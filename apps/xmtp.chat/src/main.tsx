@@ -7,7 +7,6 @@ import pkg from "@xmtp/browser-sdk/package.json";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router";
 import { createConfig, http, WagmiProvider } from "wagmi";
-import { arbitrum, arbitrumSepolia } from "wagmi/chains";
 import {
   coinbaseWallet,
   injected,
@@ -16,6 +15,7 @@ import {
 } from "wagmi/connectors";
 import { App } from "@/components/App/App";
 import { XMTPProvider } from "@/contexts/XMTPContext";
+import { injectiveMainnet, injectiveTestnet } from "@/helpers/chains";
 import { queryClient } from "@/helpers/queries";
 
 Sentry.init({
@@ -33,18 +33,18 @@ export const config = createConfig({
   connectors: [
     injected(),
     coinbaseWallet({
-      appName: "Arbisper",
+      appName: "Omisper",
     }),
     metaMask(),
     walletConnect({ projectId: import.meta.env.VITE_PROJECT_ID }),
   ],
   chains: [
-    arbitrum, // Arbitrum as primary chain
-    arbitrumSepolia,
+    injectiveMainnet, // Injective as primary chain
+    injectiveTestnet,
   ],
   transports: {
-    [arbitrum.id]: http(),
-    [arbitrumSepolia.id]: http(),
+    [injectiveMainnet.id]: http(),
+    [injectiveTestnet.id]: http(),
   },
 });
 
