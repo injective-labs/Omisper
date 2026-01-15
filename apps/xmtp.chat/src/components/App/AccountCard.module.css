@@ -1,0 +1,48 @@
+.root {
+  cursor: pointer;
+  background-color: #ece9d8;
+  border: 1px solid transparent;
+  transition: all 0.1s ease;
+}
+
+.root:hover {
+  background-color: #f0f0f0;
+  border: 1px outset #ece9d8;
+  box-shadow:
+    inset -1px -1px 0 #ffffff,
+    inset 1px 1px 0 #808080;
+}
+
+.disabled {
+  cursor: not-allowed;
+  background-color: #ece9d8;
+  opacity: 0.6;
+}
+
+.disabled:hover {
+  background-color: #ece9d8;
+  border: 1px solid transparent;
+  box-shadow: none;
+}
+
+.selected {
+  cursor: default;
+  background-color: #316ac5 !important;
+  color: #ffffff !important;
+  border: 2px inset #316ac5 !important;
+  box-shadow:
+    inset 1px 1px 0 rgba(255, 255, 255, 0.3),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.2) !important;
+}
+
+.selected:hover {
+  background-color: #316ac5 !important;
+  color: #ffffff !important;
+  border: 2px inset #316ac5 !important;
+}
+
+.selected.disabled {
+  cursor: not-allowed;
+  background-color: #316ac5 !important;
+  opacity: 0.6;
+}

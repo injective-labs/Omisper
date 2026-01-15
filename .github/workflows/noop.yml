@@ -1,0 +1,45 @@
+name: No code changes
+permissions:
+  contents: none
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    paths:
+      - ".changeset/config.json"
+      - ".changeset/*.md"
+      - ".cursor/**"
+      - ".github/**"
+      - "!.github/workflows/node-sdk.yml"
+      - "!.github/workflows/content-types.yml"
+      - ".vscode/**"
+      - ".yarn/**"
+      - "apps/xmtp.chat/**"
+      - "*"
+      - "!.node-version"
+      - "!.nvmrc"
+      - "!.yarnrc.yml"
+      - "!turbo.json"
+      - "yarn.lock"
+
+jobs:
+  typecheck:
+    name: Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Nothing to typecheck"
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Nothing to test"
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Nothing to build"

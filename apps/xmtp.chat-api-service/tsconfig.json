@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "ESNext",
+    // this is needed for the vercel runtime
+    "moduleResolution": "node",
+    "noEmit": true,
+    "preserveConstEnums": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "ESNext"
+  },
+  "include": ["rollup.config.js", "src/**/*", "prisma/**/*"]
+}

@@ -1,0 +1,37 @@
+name: xmtp.chat
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    paths:
+      - "apps/xmtp.chat/**"
+      - "sdks/browser-sdk/**"
+      - ".github/workflows/xmtp-chat.yml"
+      - "dev/**"
+      - ".node-version"
+      - ".yarnrc.yml"
+      - "turbo.json"
+
+jobs:
+  typecheck:
+    name: Typecheck
+    permissions:
+      contents: read
+    runs-on: warp-ubuntu-latest-x64-8x
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: ".node-version"
+          cache: "yarn"
+        env:
+          SKIP_YARN_COREPACK_CHECK: "1"
+      - name: Enable corepack
+        run: corepack enable
+      - name: Install dependencies
+        run: yarn
+      - name: Typecheck
+        run: yarn turbo run typecheck --filter='./apps/xmtp.chat'

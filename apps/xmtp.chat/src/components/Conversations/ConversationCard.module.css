@@ -1,0 +1,25 @@
+.root {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none !important;
+  box-shadow: none !important;
+  background: var(--bg-secondary, #ffffff) !important;
+}
+
+.root:hover {
+  background: var(--bg-hover, rgba(0, 0, 0, 0.04)) !important;
+}
+
+.root:focus {
+  outline: 2px solid var(--wechat-green, #07C160);
+  outline-offset: -2px;
+}
+
+.selected {
+  background: var(--bg-active, rgba(7, 193, 96, 0.08)) !important;
+  border-left: 3px solid var(--wechat-green, #07C160) !important;
+}
+
+.selected:hover {
+  background: var(--bg-active, rgba(7, 193, 96, 0.12)) !important;
+}

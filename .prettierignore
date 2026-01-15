@@ -1,0 +1,7 @@
+CODEOWNERS
+.yarn
+.changeset/**/*.md
+sdks/node-sdk/scripts/**/*.json
+apps/xmtp.chat-api-service/api/**/*
+apps/xmtp.chat-api-service/prisma/generated/**/*
+.claude
