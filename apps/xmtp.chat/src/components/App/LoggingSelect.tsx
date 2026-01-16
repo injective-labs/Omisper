@@ -14,7 +14,7 @@ export const LoggingSelect: React.FC = () => {
     <Stack gap={4}>
       <Group gap="xs" justify="space-between" align="center">
         <Text size="sm" fw={500}>
-          Enhanced Privacy (zk)
+          ZK-Enhanced Privacy
         </Text>
         <Switch
           size="sm"

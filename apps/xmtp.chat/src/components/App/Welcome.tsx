@@ -35,11 +35,7 @@ export const Welcome = () => {
         Omisper
       </Title>
       <Text className="welcome-subtitle">
-        Decentralized P2P Messaging
-        <br />
-        <Text span size="sm" c="dimmed">
-          Powered by XMTP • Secured on Injective
-        </Text>
+        Your Keys, Your Messages
       </Text>
 
       {/* Connect card */}
@@ -59,7 +55,7 @@ export const Welcome = () => {
           left: 0,
           right: 0,
         }}>
-        End-to-end encrypted • Your keys, your messages
+        Decentralized P2P Messager Secured on Injective
       </Text>
     </Box>
   );
