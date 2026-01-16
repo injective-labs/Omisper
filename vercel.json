@@ -1,7 +1,6 @@
 {
-  "buildCommand": "yarn install && npx turbo run build --filter=@xmtp/xmtp.chat --concurrency=1 --force",
+  "buildCommand": "yarn build",
   "outputDirectory": "apps/xmtp.chat/dist",
-  "installCommand": "yarn install",
   "framework": "vite",
   "rewrites": [
     {

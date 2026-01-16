@@ -1,0 +1,11 @@
+{
+  "buildCommand": "yarn build:vercel",
+  "outputDirectory": "dist",
+  "framework": "nodejs",
+  "functions": {
+    "api/**/*.ts": {
+      "memory": 512,
+      "maxDuration": 10
+    }
+  }
+}
