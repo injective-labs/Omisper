@@ -51,22 +51,28 @@ app.use(noRouteMiddleware);
 // Error handling middleware should be last
 app.use(errorMiddleware);
 
-const port = process.env.PORT || 4000;
-const server = app.listen(port, () => {
-  console.log(`xmtp.chat API service is running on port ${port}`);
-  console.log(`Environment: ${env}`);
-});
+// 导出 Express app 供 Vercel 使用
+export default app;
 
-process.on("SIGTERM", () => {
-  console.log("SIGTERM signal received: closing xmtp.chat API service");
-  server.close(() => {
-    console.log("xmtp.chat API service closed");
+// 本地开发服务器
+if (process.env.NODE_ENV !== "production") {
+  const port = process.env.PORT || 4000;
+  const server = app.listen(port, () => {
+    console.log(`xmtp.chat API service is running on port ${port}`);
+    console.log(`Environment: ${env}`);
   });
-});
 
-process.on("SIGINT", () => {
-  console.log("SIGINT signal received: closing xmtp.chat API service");
-  server.close(() => {
-    console.log("xmtp.chat API service closed");
+  process.on("SIGTERM", () => {
+    console.log("SIGTERM signal received: closing xmtp.chat API service");
+    server.close(() => {
+      console.log("xmtp.chat API service closed");
+    });
   });
-});
+
+  process.on("SIGINT", () => {
+    console.log("SIGINT signal received: closing xmtp.chat API service");
+    server.close(() => {
+      console.log("xmtp.chat API service closed");
+    });
+  });
+}
