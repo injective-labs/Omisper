@@ -1,7 +1,6 @@
 {
   "buildCommand": "yarn build",
   "outputDirectory": "apps/xmtp.chat/dist",
-  "framework": "vite",
   "rewrites": [
     {
       "source": "/(.*)",
