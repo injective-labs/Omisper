@@ -38,7 +38,7 @@ app.use(jsonMiddleware); // Parse JSON requests
 app.use(rateLimitMiddleware);
 
 // GET /healthcheck - Healthcheck endpoint
-app.get("/healthcheck", (_req: Request, res: Response): void => {
+app.get("/health", (_req: Request, res: Response): void => {
   res.status(200).send("OK");
 });
 
