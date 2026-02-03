@@ -10,16 +10,49 @@ import { rateLimitMiddleware } from "./middleware/rateLimit.js";
 const app = express();
 
 const env = process.env.NODE_ENV || "development";
-const allowedOrigins = [
-  "https://xmtp.chat",
-  "https://d14n.xmtp.chat",
-  // vercel preview domains
-  /^https:\/\/(.*)-xmtplabs\.vercel\.app$/,
-];
 
-if (env === "development") {
-  allowedOrigins.push("http://localhost:5173");
-}
+// Parse CORS allowed origins from environment variable
+// Format: comma-separated URLs, or regex patterns enclosed in /.../ 
+// Example: "https://example.com,https://another.com,/^https:\/\/.*\.pages\.dev$/"
+const parseCorsOrigins = (originsString?: string): (string | RegExp)[] => {
+  const defaults = [
+    "https://xmtp.chat",
+    "https://d14n.xmtp.chat",
+  ];
+
+  if (!originsString) {
+    if (env === "development") {
+      defaults.push("http://localhost:5173");
+    }
+    return defaults;
+  }
+
+  const origins: (string | RegExp)[] = [...defaults];
+  const parts = originsString.split(",").map((p) => p.trim());
+
+  for (const part of parts) {
+    if (part.startsWith("/") && part.endsWith("/")) {
+      // It's a regex pattern
+      const pattern = part.slice(1, -1);
+      try {
+        origins.push(new RegExp(pattern));
+      } catch (e) {
+        console.warn(`Invalid regex pattern in CORS_ALLOWED_ORIGINS: ${part}`);
+      }
+    } else if (part) {
+      // It's a URL
+      origins.push(part);
+    }
+  }
+
+  if (env === "development") {
+    origins.push("http://localhost:5173");
+  }
+
+  return origins;
+};
+
+const allowedOrigins = parseCorsOrigins(process.env.CORS_ALLOWED_ORIGINS);
 
 app.set("trust proxy", 1);
 app.use(helmet()); // Set security headers

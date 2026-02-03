@@ -48,7 +48,7 @@ export const useConversation = (conversationId: string) => {
 
     try {
       const msgs = await conversation.messages({
-        sentAfterNs: lastSentAt,
+        ...(lastSentAt !== undefined && { sentAfterNs: lastSentAt }),
       });
       await addMessages(conversation.id, msgs);
       return msgs;

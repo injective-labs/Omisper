@@ -105,6 +105,19 @@ yarn dev
 - **TypeScript 5.9** - 类型安全的 JavaScript
 - **Vite 7** - 下一代前端构建工具
 
+部署
+# 1. 安装 Wrangler
+npm install -g wrangler
+
+# 2. 登录
+wrangler login
+
+# 3. 本地构建
+yarn build
+
+# 4. 部署
+wrangler pages deploy apps/xmtp.chat/dist
+
 ### Web3 技术
 
 - **XMTP Browser SDK** - XMTP 协议集成
