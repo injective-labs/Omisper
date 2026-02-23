@@ -1483,6 +1483,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@injpass/connector@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "@injpass/connector@npm:2.0.0"
+  checksum: 10/7a20b3a6031f23dd17a61dd683646dca9855469cfbcc9f9cf72fd1c4662e3b3bd9789661f324cb63ba678bd7a69bedc3191dc74edcf3608ce556bde46b8f58b8
+  languageName: node
+  linkType: hard
+
 "@inquirer/external-editor@npm:^1.0.0":
   version: 1.0.2
   resolution: "@inquirer/external-editor@npm:1.0.2"
@@ -5041,6 +5048,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@xmtp/xmtp.chat@workspace:apps/xmtp.chat"
   dependencies:
+    "@injpass/connector": "npm:^2.0.0"
     "@mantine/core": "npm:^8.3.5"
     "@mantine/form": "npm:^8.3.5"
     "@mantine/hooks": "npm:^8.3.5"
