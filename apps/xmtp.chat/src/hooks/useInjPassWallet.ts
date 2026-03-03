@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { getInjPassWallet } from '../services/injpass-wallet';
 
 interface UseInjPassWalletReturn {
+  /** Ethereum-compatible 0x... address */
   address: string | null;
   walletName: string | null;
   isConnected: boolean;
@@ -46,25 +47,32 @@ export function useInjPassWallet(): UseInjPassWalletReturn {
 
   const wallet = getInjPassWallet();
 
-  // Check initial connection state
-  useEffect(() => {
+  // Sync state from wallet adapter
+  const syncState = useCallback(() => {
     const addr = wallet.getAddress();
-    if (addr) {
-      setAddress(addr);
-      setWalletName(wallet.getWalletName());
-      setIsConnected(true);
-    }
-  }, []);
+    setAddress(addr);
+    setWalletName(wallet.getWalletName());
+    setIsConnected(wallet.isConnected());
+  }, [wallet]);
+
+  // Subscribe to wallet state changes
+  useEffect(() => {
+    // Initial sync
+    syncState();
+    
+    // Subscribe to updates
+    const unsubscribe = wallet.subscribe(syncState);
+    
+    return unsubscribe;
+  }, [wallet, syncState]);
 
   const connect = useCallback(async () => {
     setIsConnecting(true);
     setError(null);
 
     try {
-      const addr = await wallet.connect();
-      setAddress(addr);
-      setWalletName(wallet.getWalletName());
-      setIsConnected(true);
+      await wallet.connect();
+      // State will be synced via subscription
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Connection failed';
       setError(errorMessage);
@@ -76,9 +84,7 @@ export function useInjPassWallet(): UseInjPassWalletReturn {
 
   const disconnect = useCallback(() => {
     wallet.disconnect();
-    setAddress(null);
-    setWalletName(null);
-    setIsConnected(false);
+    // State will be synced via subscription
     setError(null);
   }, [wallet]);
 

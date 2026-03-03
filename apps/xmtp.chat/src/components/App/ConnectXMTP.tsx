@@ -1,4 +1,4 @@
-import { Box, Button, Divider, Group, Stack, Text } from "@mantine/core";
+import { Box, Button, Divider, Group, Stack, Text, Badge } from "@mantine/core";
 import { useCallback } from "react";
 import { ConnectedAddress } from "@/components/App/ConnectedAddress";
 import { LoggingSelect } from "@/components/App/LoggingSelect";
@@ -6,6 +6,7 @@ import { NetworkSelect } from "@/components/App/NetworkSelect";
 import { useConnectWallet } from "@/hooks/useConnectWallet";
 import { useConnectXmtp } from "@/hooks/useConnectXmtp";
 import { useEphemeralSigner } from "@/hooks/useEphemeralSigner";
+import { useInjPassWallet } from "@/hooks/useInjPassWallet";
 import { useSettings } from "@/hooks/useSettings";
 
 export type ConnectXMTPProps = {
@@ -15,8 +16,15 @@ export type ConnectXMTPProps = {
 export const ConnectXMTP = ({ onDisconnectWallet }: ConnectXMTPProps) => {
   const { isConnected, address } = useConnectWallet();
   const { address: ephemeralAddress } = useEphemeralSigner();
+  const {
+    isConnected: injPassConnected,
+    address: injPassAddress,
+    walletName: injPassWalletName,
+  } = useInjPassWallet();
   const { connect, loading } = useConnectXmtp();
   const { ephemeralAccountEnabled } = useSettings();
+
+  const anyConnected = isConnected || ephemeralAccountEnabled || injPassConnected;
 
   const handleConnectClick = useCallback(() => {
     connect();
@@ -36,11 +44,22 @@ export const ConnectXMTP = ({ onDisconnectWallet }: ConnectXMTPProps) => {
             <Text size="xs" c="dimmed" fw={500}>
               Connected Wallet
             </Text>
-            <ConnectedAddress
-              size="sm"
-              address={address ?? ephemeralAddress}
-              onClick={onDisconnectWallet}
-            />
+            {injPassConnected ? (
+              <Stack gap={2}>
+                <Badge variant="light" color="violet" size="sm">
+                  🔐 {injPassWalletName || "INJ Pass"}
+                </Badge>
+                <Text size="xs" style={{ wordBreak: "break-all", maxWidth: 200 }}>
+                  {injPassAddress}
+                </Text>
+              </Stack>
+            ) : (
+              <ConnectedAddress
+                size="sm"
+                address={address ?? ephemeralAddress}
+                onClick={onDisconnectWallet}
+              />
+            )}
           </Stack>
           <Button
             variant="subtle"
@@ -66,7 +85,7 @@ export const ConnectXMTP = ({ onDisconnectWallet }: ConnectXMTPProps) => {
         size="lg"
         variant="filled"
         color="wechat"
-        disabled={!isConnected && !ephemeralAccountEnabled}
+        disabled={!anyConnected}
         onClick={handleConnectClick}
         loading={loading}
         style={{

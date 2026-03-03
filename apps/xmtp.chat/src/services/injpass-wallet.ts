@@ -9,6 +9,7 @@ export class InjPassWalletAdapter {
   private connector: InjPassConnector;
   private wallet: ConnectedWallet | null = null;
   private connected = false;
+  private listeners: Set<() => void> = new Set();
 
   constructor() {
     // Detect mobile for better UX
@@ -33,6 +34,26 @@ export class InjPassWalletAdapter {
         : { width: '400px', height: '300px' },
       autoHide: false  // Keep iframe visible to show connected wallet info
     });
+
+    // Listen for disconnect events from SDK (when user clicks disconnect in embed)
+    this.connector.onDisconnect(() => {
+      this.disconnect();
+    });
+  }
+
+  /**
+   * Subscribe to connection state changes
+   */
+  subscribe(listener: () => void): () => void {
+    this.listeners.add(listener);
+    return () => this.listeners.delete(listener);
+  }
+
+  /**
+   * Notify all subscribers of state change
+   */
+  private notifyListeners() {
+    this.listeners.forEach(listener => listener());
   }
 
   /**
@@ -47,6 +68,11 @@ export class InjPassWalletAdapter {
     try {
       this.wallet = await this.connector.connect();
       this.connected = true;
+      console.log('✅ INJ Pass connected:', {
+        address: this.wallet.address,
+        walletName: this.wallet.walletName,
+      });
+      this.notifyListeners();
       return this.wallet.address;
     } catch (error) {
       console.error('INJ Pass connection failed:', error);
@@ -59,7 +85,7 @@ export class InjPassWalletAdapter {
   }
 
   /**
-   * Get current wallet address
+   * Get current wallet address (0x... EVM format)
    */
   getAddress(): string | null {
     return this.wallet?.address || null;
@@ -111,6 +137,7 @@ export class InjPassWalletAdapter {
     this.connector.disconnect();
     this.wallet = null;
     this.connected = false;
+    this.notifyListeners();
   }
 
   /**

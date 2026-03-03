@@ -6,18 +6,21 @@ import { WalletConnect } from "@/components/App/WalletConnect";
 import { useXMTP } from "@/contexts/XMTPContext";
 import { useConnectWallet } from "@/hooks/useConnectWallet";
 import { useConnectXmtp } from "@/hooks/useConnectXmtp";
+import { useInjPassWallet } from "@/hooks/useInjPassWallet";
 import { useRedirect } from "@/hooks/useRedirect";
 import { useSettings } from "@/hooks/useSettings";
 
 export const Connect = () => {
   const { isConnected, disconnect, loading } = useConnectWallet();
+  const { isConnected: injPassConnected, disconnect: injPassDisconnect } = useInjPassWallet();
+  const anyWalletConnected = isConnected || injPassConnected;
   const {
     environment,
     ephemeralAccountEnabled,
     setEphemeralAccountEnabled,
     setAutoConnect,
   } = useSettings();
-  const { client } = useXMTP();
+  const { client, disconnect: disconnectXMTP } = useXMTP();
   const { loading: connectingXmtp } = useConnectXmtp();
   const navigate = useNavigate();
   const { redirectUrl, setRedirectUrl } = useRedirect();
@@ -39,12 +42,12 @@ export const Connect = () => {
   }, [client, environment]);
 
   useEffect(() => {
-    if (isConnected || ephemeralAccountEnabled) {
+    if (anyWalletConnected || ephemeralAccountEnabled) {
       setActive(1);
     } else {
       setActive(0);
     }
-  }, [isConnected, ephemeralAccountEnabled]);
+  }, [anyWalletConnected, ephemeralAccountEnabled, client]);
 
   // handle connection stages
   useEffect(() => {
@@ -54,19 +57,29 @@ export const Connect = () => {
         setConnectionStage("ready");
       }, 1000);
       return () => clearTimeout(timer);
-    } else if (!client && (isConnected || ephemeralAccountEnabled)) {
+    } else if (!client && (anyWalletConnected || ephemeralAccountEnabled)) {
       setConnectionStage("idle");
     }
-  }, [connectingXmtp, client, isConnected, ephemeralAccountEnabled]);
+  }, [connectingXmtp, client, anyWalletConnected, ephemeralAccountEnabled]);
 
   const handleDisconnectWallet = useCallback(() => {
+    // For INJPass, explicitly disconnect XMTP client and navigate home
+    // (MetaMask/wagmi is handled via onSuccess callback in Disconnect.tsx)
+    if (injPassConnected) {
+      injPassDisconnect();
+      disconnectXMTP();
+      setAutoConnect(false);
+      void navigate("/");
+      return;
+    }
+
     if (isConnected) {
       disconnect();
     } else {
       setEphemeralAccountEnabled(false);
     }
     setAutoConnect(false);
-  }, [isConnected, disconnect]);
+  }, [isConnected, disconnect, injPassConnected, injPassDisconnect, disconnectXMTP, navigate, setAutoConnect, setEphemeralAccountEnabled]);
 
   const { progress, statusText, statusColor } = useMemo(() => {
     if (client) {
@@ -90,7 +103,7 @@ export const Connect = () => {
         statusColor: "var(--text-secondary)",
       };
     }
-    if (isConnected || ephemeralAccountEnabled) {
+    if (anyWalletConnected || ephemeralAccountEnabled) {
       return {
         progress: 30,
         statusText: "Wallet connected",
@@ -102,7 +115,7 @@ export const Connect = () => {
       statusText: "Connect your wallet to start",
       statusColor: "var(--text-muted)",
     };
-  }, [client, connectionStage, isConnected, ephemeralAccountEnabled]);
+  }, [client, connectionStage, anyWalletConnected, ephemeralAccountEnabled]);
 
   return (
     <Stack gap="lg">
