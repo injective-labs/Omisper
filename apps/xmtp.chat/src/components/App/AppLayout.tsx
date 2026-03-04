@@ -1,5 +1,5 @@
 import { useDisclosure } from "@mantine/hooks";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Outlet, useLocation, useNavigate, useParams } from "react-router";
 import { AppHeader } from "@/components/App/AppHeader";
 import { Disclaimer } from "@/components/App/Disclaimer";
@@ -7,6 +7,7 @@ import { ConversationsNavbar } from "@/components/Conversations/ConversationsNav
 import { LoadingMessage } from "@/components/LoadingMessage";
 import { useXMTP } from "@/contexts/XMTPContext";
 import { isValidEnvironment } from "@/helpers/strings";
+import { useInjPassWallet } from "@/hooks/useInjPassWallet";
 import { useRedirect } from "@/hooks/useRedirect";
 import { useSettings } from "@/hooks/useSettings";
 import { CenteredLayout } from "@/layouts/CenteredLayout";
@@ -29,6 +30,9 @@ export const AppLayout: React.FC = () => {
   const { environment: envParam } = useParams();
   const { setEnvironment, environment } = useSettings();
   const [validEnvironment, setValidEnvironment] = useState(false);
+  const { isConnected: injPassConnected } = useInjPassWallet();
+  // Track whether injpass was connected when this layout first mounted
+  const injPassWasConnected = useRef(injPassConnected);
 
   useEffect(() => {
     if (!client) {
@@ -39,6 +43,15 @@ export const AppLayout: React.FC = () => {
       void navigate("/");
     }
   }, []);
+
+  // When injpass disconnects remotely (e.g. user disconnects inside the iframe),
+  // also clear the XMTP client so the existing logic above redirects to "/"
+  useEffect(() => {
+    if (injPassWasConnected.current && !injPassConnected && client) {
+      disconnect();
+    }
+    injPassWasConnected.current = injPassConnected;
+  }, [injPassConnected, client, disconnect]);
 
   useEffect(() => {
     if (!client) {
