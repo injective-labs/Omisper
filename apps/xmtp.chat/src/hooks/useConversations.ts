@@ -23,11 +23,19 @@ export const useConversations = () => {
   const [syncing, setSyncing] = useState(false);
 
   const sync = async (fromNetwork: boolean = false) => {
+    console.log('[useConversations] sync() called, fromNetwork:', fromNetwork);
+    console.log('[useConversations] client:', !!client);
+    console.log('[useConversations] lastCreatedAt:', lastCreatedAt);
+
     if (fromNetwork) {
       setSyncing(true);
 
       try {
+        console.log('[useConversations] Calling client.conversations.sync()...');
         await client.conversations.sync();
+        console.log('[useConversations] client.conversations.sync() completed');
+      } catch (error) {
+        console.error('[useConversations] sync() error:', error);
       } finally {
         setSyncing(false);
       }
@@ -36,12 +44,19 @@ export const useConversations = () => {
     setLoading(true);
 
     try {
-      const convos = await client.conversations.list({
-        createdAfterNs: lastCreatedAt,
-      });
+      // When syncing from network, fetch all conversations without time filter
+      // to ensure old conversations are not missed. When fromNetwork is false,
+      // only fetch new conversations created after lastCreatedAt for efficiency.
+      const options = fromNetwork ? {} : { createdAfterNs: lastCreatedAt };
+      console.log('[useConversations] Calling client.conversations.list() with options:', options);
+      const convos = await client.conversations.list(options);
+      console.log('[useConversations] Got conversations:', convos.length);
       await addConversations(convos);
       setLastSyncedAt(dateToNs(new Date()));
       return convos;
+    } catch (error) {
+      console.error('[useConversations] list() error:', error);
+      return [];
     } finally {
       setLoading(false);
     }

@@ -1,8 +1,8 @@
-import { InjPassConnector, type ConnectedWallet } from '@injpass/connector';
+import { InjPassConnector, type ConnectedWallet } from '@injpass/cli';
 
 /**
  * INJ Pass Wallet Adapter for Omisper
- * 
+ *
  * Integrates INJ Pass wallet using iframe connector
  */
 export class InjPassWalletAdapter {
@@ -10,34 +10,39 @@ export class InjPassWalletAdapter {
   private wallet: ConnectedWallet | null = null;
   private connected = false;
   private listeners: Set<() => void> = new Set();
+  private isDisconnecting = false;
 
   constructor() {
     // Detect mobile for better UX
     const isMobile = /iPhone|iPad|Android/i.test(navigator.userAgent);
-    
+
     // Get embed URL from environment variable
     const embedUrl = import.meta.env.VITE_INJPASS_EMBED_URL;
-    
+
     if (!embedUrl) {
       throw new Error(
         'VITE_INJPASS_EMBED_URL is not configured. ' +
         'Please set it in your .env file (e.g., http://localhost:3001/embed for development)'
       );
     }
-    
+
     this.connector = new InjPassConnector({
       embedUrl,
       mode: isMobile ? 'modal' : 'floating',
       position: { bottom: '20px', right: '20px' },
-      size: isMobile 
+      size: isMobile
         ? { width: '90vw', height: '60vh' }
         : { width: '400px', height: '300px' },
-      autoHide: false  // Keep iframe visible to show connected wallet info
+      autoHide: true  // Hide iframe when connected to avoid covering the UI
     });
 
     // Listen for disconnect events from SDK (when user clicks disconnect in embed)
+    // Use isDisconnecting flag to prevent infinite recursion
     this.connector.onDisconnect(() => {
-      this.disconnect();
+      if (!this.isDisconnecting) {
+        this.isDisconnecting = true;
+        this.disconnect();
+      }
     });
   }
 
@@ -77,8 +82,8 @@ export class InjPassWalletAdapter {
     } catch (error) {
       console.error('INJ Pass connection failed:', error);
       throw new Error(
-        error instanceof Error 
-          ? error.message 
+        error instanceof Error
+          ? error.message
           : 'Failed to connect to INJ Pass wallet'
       );
     }
@@ -113,8 +118,8 @@ export class InjPassWalletAdapter {
     } catch (error) {
       console.error('Signing failed:', error);
       throw new Error(
-        error instanceof Error 
-          ? error.message 
+        error instanceof Error
+          ? error.message
           : 'Failed to sign message'
       );
     }
@@ -137,6 +142,7 @@ export class InjPassWalletAdapter {
     this.connector.disconnect();
     this.wallet = null;
     this.connected = false;
+    this.isDisconnecting = false;
     this.notifyListeners();
   }
 

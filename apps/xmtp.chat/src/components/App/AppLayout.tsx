@@ -20,19 +20,49 @@ import {
 
 const REDIRECT_TIMEOUT = 2000;
 
+// Hook to detect mobile viewport
+const useIsMobile = (breakpoint = 1080) => {
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== "undefined" && window.innerWidth < breakpoint
+  );
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < breakpoint);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [breakpoint]);
+
+  return isMobile;
+};
+
 export const AppLayout: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { conversationId } = useParams();
   const { client, disconnect } = useXMTP();
   const { setRedirectUrl } = useRedirect();
-  const [opened, { toggle }] = useDisclosure();
+  const [opened, { toggle, close, open }] = useDisclosure();
   const [message, setMessage] = useState("Connecting...");
   const { environment: envParam } = useParams();
   const { setEnvironment, environment } = useSettings();
   const [validEnvironment, setValidEnvironment] = useState(false);
   const { isConnected: injPassConnected } = useInjPassWallet();
+  const isMobile = useIsMobile();
   // Track whether injpass was connected when this layout first mounted
   const injPassWasConnected = useRef(injPassConnected);
+
+  // On mobile, close sidebar when viewing a conversation, open when no conversation
+  useEffect(() => {
+    if (isMobile) {
+      if (conversationId) {
+        close();
+      } else {
+        open();
+      }
+    }
+  }, [isMobile, conversationId, close, open]);
 
   useEffect(() => {
     if (!client) {

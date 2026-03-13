@@ -1483,10 +1483,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@injpass/connector@npm:2.1.8":
-  version: 2.1.8
-  resolution: "@injpass/connector@npm:2.1.8"
-  checksum: 10/8fda7d2a621914cab189987ac301eca23c357e8429f37fe9ae1da9675828b707bf76fbde554ba2b50d90eea00a71694e011c1f3e734727b8d1292aef1d3e2ff8
+"@injpass/cli@npm:2.2.1":
+  version: 2.2.1
+  resolution: "@injpass/cli@npm:2.2.1"
+  checksum: 10/cd6778c5379333ef10115e442af6be9122aca39bedd870a3edfd78c581643d07a4cc2a7ec0709ac4cd308b4a8ac54ae4cd8f75ce7c6c4319453850df66adaa68
   languageName: node
   linkType: hard
 
@@ -5048,7 +5048,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@xmtp/xmtp.chat@workspace:apps/xmtp.chat"
   dependencies:
-    "@injpass/connector": "npm:2.1.8"
+    "@injpass/cli": "npm:2.2.1"
     "@mantine/core": "npm:^8.3.5"
     "@mantine/form": "npm:^8.3.5"
     "@mantine/hooks": "npm:^8.3.5"

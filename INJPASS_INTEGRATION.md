@@ -3,8 +3,8 @@
 ## ✅ 已完成的工作
 
 ### 1. SDK 发布
-- ✅ **Package**: `@injpass/connector@0.1.0`
-- ✅ **NPM**: https://www.npmjs.com/package/@injpass/connector
+- ✅ **Package**: `@injpass/cli@0.1.0`
+- ✅ **NPM**: https://www.npmjs.com/package/@injpass/cli
 - ✅ **发布时间**: 5分钟前
 
 ### 2. 集成文件已创建
@@ -43,7 +43,7 @@ yarn install
 cd /Users/ivy/Desktop/program/injective/INJ_Pass/Omisper/apps/xmtp.chat
 
 # 方法1：使用 NPM（绕过 Yarn）
-npm install @injpass/connector
+npm install @injpass/cli
 
 # 方法2：本地路径（开发测试）
 yarn add file:/Users/ivy/Desktop/program/injective/INJ_Pass/inj-pass-frontend/packages/injpass-connector
@@ -319,7 +319,7 @@ embedUrl: import.meta.env.VITE_INJPASS_EMBED_URL || 'https://injpass.xyz/embed'
 
 **解决方案**:
 1. 等待 5-10 分钟
-2. 或使用 npm 安装：`npm install @injpass/connector`
+2. 或使用 npm 安装：`npm install @injpass/cli`
 3. 或使用本地路径（开发）
 
 ### 问题 2: Iframe 不显示

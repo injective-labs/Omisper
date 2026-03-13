@@ -35,7 +35,9 @@ export const useConnectXmtp = () => {
     console.log('   injPass.isConnected:', injPass.isConnected);
     console.log('   injPass.address:', injPass.address);
     console.log('   account.address:', account.address);
-    
+    console.log('   encryptionKey:', encryptionKey ? 'set' : 'empty');
+    console.log('   env:', environment);
+
     // if client is already connected, return
     if (client) {
       console.log('❌ Client already connected, returning');
