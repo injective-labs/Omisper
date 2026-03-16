@@ -9,7 +9,12 @@ export const WalletConnect = () => {
       {/* INJ Pass - Passkey-based wallet */}
       <Stack gap="xs">
         <Text size="sm" fw={600} c="dimmed">
-          🔐 Passkey Wallet
+          <img
+            src="/lambda.png"
+            alt="lambda"
+            style={{ width: 16, height: 16, verticalAlign: 'middle', marginRight: 4 }}
+          />
+          Passkey Wallet
         </Text>
         <Box
           style={{

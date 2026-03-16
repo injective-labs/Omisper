@@ -149,7 +149,11 @@ export function InjPassConnectButton() {
             flexShrink: 0,
           }}
         >
-          <InjPassIcon />
+          <img
+            src="/lambda.png"
+            alt="lambda"
+            style={{ width: 24, height: 24 }}
+          />
         </Box>
         <Stack gap={2} style={{ flex: 1 }}>
           <Text fw={500} size="sm">
