@@ -1,9 +1,13 @@
-import { Stack, Divider, Text, Box } from "@mantine/core";
+import { Stack, Divider, Text } from "@mantine/core";
 import { ConnectorSelect } from "@/components/App/ConnectorSelect";
 import { ConnectWallet } from "@/components/App/ConnectWallet";
 import { InjPassConnectButton } from "@/components/InjPassWallet";
+import { useInjPassWallet } from "@/hooks/useInjPassWallet";
 
 export const WalletConnect = () => {
+  const { isConnected, isConnecting } = useInjPassWallet();
+  const injPassActive = isConnected || isConnecting;
+
   return (
     <Stack gap="md">
       {/* INJ Pass - Passkey-based wallet */}
@@ -16,23 +20,14 @@ export const WalletConnect = () => {
           />
           Passkey Wallet
         </Text>
-        <Box
-          style={{
-            padding: "12px",
-            borderRadius: 12,
-            background: "var(--bg-secondary)",
-            border: "1px solid var(--border-color)",
-          }}
-        >
-          <InjPassConnectButton />
-        </Box>
+        <InjPassConnectButton />
       </Stack>
 
       <Divider label="OR" labelPosition="center" />
 
       {/* Traditional Web3 Wallets */}
       <ConnectorSelect />
-      <ConnectWallet />
+      <ConnectWallet disabled={injPassActive} />
     </Stack>
   );
 };

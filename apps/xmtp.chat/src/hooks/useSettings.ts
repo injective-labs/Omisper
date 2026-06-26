@@ -6,6 +6,7 @@ import type { ConnectorString } from "@/hooks/useConnectWallet";
 
 // chain type for network switching
 export type ChainType = "injective" | "injectiveTestnet";
+export type WalletMethod = ConnectorString | "INJ Pass";
 
 export const useSettings = () => {
   const [environment, setEnvironment] = useLocalStorage<XmtpEnv>({
@@ -65,6 +66,11 @@ export const useSettings = () => {
     defaultValue: "MetaMask",
     getInitialValueInEffect: false,
   });
+  const [walletMethod, setWalletMethod] = useLocalStorage<WalletMethod>({
+    key: "XMTP_WALLET_METHOD",
+    defaultValue: "MetaMask",
+    getInitialValueInEffect: false,
+  });
   const [autoConnect, setAutoConnect] = useLocalStorage<boolean>({
     key: "XMTP_AUTO_CONNECT",
     defaultValue: false,
@@ -88,6 +94,7 @@ export const useSettings = () => {
     loggingLevel,
     selectedChain,
     useSCW,
+    walletMethod,
     showDisclaimer,
     setAutoConnect,
     setBlockchain,
@@ -100,6 +107,7 @@ export const useSettings = () => {
     setLoggingLevel,
     setSelectedChain,
     setUseSCW,
+    setWalletMethod,
     setShowDisclaimer,
   };
 };

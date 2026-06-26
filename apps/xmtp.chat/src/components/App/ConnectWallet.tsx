@@ -3,7 +3,13 @@ import { useCallback } from "react";
 import { useConnectWallet } from "@/hooks/useConnectWallet";
 import { useSettings } from "@/hooks/useSettings";
 
-export const ConnectWallet: React.FC = () => {
+type ConnectWalletProps = {
+  disabled?: boolean;
+};
+
+export const ConnectWallet: React.FC<ConnectWalletProps> = ({
+  disabled = false,
+}) => {
   const { connect, disconnect, loading, isConnected } = useConnectWallet();
   const { connector, ephemeralAccountEnabled } = useSettings();
 
@@ -23,12 +29,12 @@ export const ConnectWallet: React.FC = () => {
       color={isConnected ? "red" : "wechat"}
       onClick={handleConnect}
       loading={loading}
-      disabled={ephemeralAccountEnabled}
+      disabled={ephemeralAccountEnabled || disabled}
       style={{
         fontWeight: 600,
         height: 48,
       }}>
-      {isConnected ? "Disconnect Wallet" : "Connect Wallet"}
+      {isConnected ? "Disconnect Wallet" : `Connect ${connector}`}
     </Button>
   );
 };

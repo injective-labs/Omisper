@@ -4,6 +4,7 @@ import {
   useConnectWallet,
   type ConnectorString,
 } from "@/hooks/useConnectWallet";
+import { useInjPassWallet } from "@/hooks/useInjPassWallet";
 import { useSettings } from "@/hooks/useSettings";
 import { CoinbaseWallet } from "@/icons/CoinbaseWallet";
 import { MetamaskWallet } from "@/icons/MetamaskWallet";
@@ -82,15 +83,26 @@ const WalletOption: React.FC<WalletOptionProps> = ({
 
 export const ConnectorSelect: React.FC = () => {
   const { isConnected, loading } = useConnectWallet();
-  const { connector, setConnector, ephemeralAccountEnabled, useSCW } =
+  const { isConnected: injPassConnected, isConnecting: injPassConnecting } =
+    useInjPassWallet();
+  const {
+    setConnector,
+    ephemeralAccountEnabled,
+    useSCW,
+    walletMethod,
+    setWalletMethod,
+  } =
     useSettings();
   const [opened, { toggle }] = useDisclosure(false);
+  const injPassActive = injPassConnected || injPassConnecting;
 
   const handleWalletConnect = (connectorName: ConnectorString) => () => {
     setConnector(connectorName);
+    setWalletMethod(connectorName);
   };
 
-  const isDisabled = isConnected || loading || ephemeralAccountEnabled;
+  const isDisabled =
+    isConnected || loading || ephemeralAccountEnabled || injPassActive;
 
   return (
     <Stack gap="sm">
@@ -99,7 +111,7 @@ export const ConnectorSelect: React.FC = () => {
       </Text>
 
       <WalletOption
-        selected={connector === "MetaMask"}
+        selected={!injPassActive && walletMethod === "MetaMask"}
         disabled={isDisabled || useSCW}
         icon={<MetamaskWallet />}
         label="MetaMask"
@@ -109,14 +121,14 @@ export const ConnectorSelect: React.FC = () => {
       <Collapse in={opened}>
         <Stack gap="sm">
           <WalletOption
-            selected={connector === "Coinbase Wallet"}
+            selected={!injPassActive && walletMethod === "Coinbase Wallet"}
             disabled={isDisabled}
             icon={<CoinbaseWallet />}
             label="Coinbase Wallet"
             onClick={handleWalletConnect("Coinbase Wallet")}
           />
           <WalletOption
-            selected={connector === "WalletConnect"}
+            selected={!injPassActive && walletMethod === "WalletConnect"}
             disabled={isDisabled}
             icon={<WalletConnectWallet />}
             label="WalletConnect"

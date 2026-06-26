@@ -1,6 +1,7 @@
 import { Button, Paper, Text, Group, Stack, Badge, Code, Box } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
 import { useInjPassWallet } from '../hooks/useInjPassWallet';
+import { useSettings } from '../hooks/useSettings';
 import { InjPassWallet as InjPassIcon } from '../icons/InjPassWallet';
 
 /**
@@ -109,11 +110,22 @@ export function InjPassWalletButton() {
  */
 export function InjPassConnectButton() {
   const { isConnected, isConnecting, connect, disconnect, address, walletName } = useInjPassWallet();
+  const { walletMethod, setWalletMethod } = useSettings();
+  const isSelected = walletMethod === "INJ Pass";
+
+  const handleConnect = () => {
+    if (isConnecting) {
+      return;
+    }
+
+    setWalletMethod("INJ Pass");
+    void connect();
+  };
 
   if (!isConnected) {
     return (
       <Box
-        onClick={isConnecting ? undefined : connect}
+        onClick={handleConnect}
         style={{
           display: "flex",
           alignItems: "center",
@@ -121,19 +133,20 @@ export function InjPassConnectButton() {
           padding: "14px 16px",
           borderRadius: 12,
           cursor: isConnecting ? "wait" : "pointer",
-          background: "var(--bg-secondary)",
-          border: "1px solid var(--border-color)",
+          background: isSelected ? "rgba(147, 51, 234, 0.08)" : "var(--bg-secondary)",
+          border: isSelected ? "2px solid #C084FC" : "1px solid var(--border-color)",
+          boxShadow: isSelected ? "0 0 0 1px rgba(192, 132, 252, 0.18)" : "none",
           opacity: isConnecting ? 0.7 : 1,
           transition: "all 0.2s ease",
         }}
         onMouseEnter={(e) => {
-          if (!isConnecting) {
+          if (!isConnecting && !isSelected) {
             e.currentTarget.style.background = "var(--bg-hover)";
             e.currentTarget.style.borderColor = "#9333EA";
           }
         }}
         onMouseLeave={(e) => {
-          if (!isConnecting) {
+          if (!isConnecting && !isSelected) {
             e.currentTarget.style.background = "var(--bg-secondary)";
             e.currentTarget.style.borderColor = "var(--border-color)";
           }
@@ -156,13 +169,21 @@ export function InjPassConnectButton() {
           />
         </Box>
         <Stack gap={2} style={{ flex: 1 }}>
-          <Text fw={500} size="sm">
+          <Text fw={isSelected ? 600 : 500} size="sm">
             INJ Pass
           </Text>
           <Text size="xs" c="dimmed">
             {isConnecting ? "Connecting..." : "Passkey-based wallet"}
           </Text>
         </Stack>
+        {isSelected && !isConnecting && (
+          <Text
+            fw={700}
+            size="lg"
+            style={{ color: "#9333EA", marginLeft: "auto" }}>
+            ✓
+          </Text>
+        )}
       </Box>
     );
   }
