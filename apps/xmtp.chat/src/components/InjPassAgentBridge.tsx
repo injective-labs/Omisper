@@ -128,6 +128,11 @@ export function InjPassAgentBridge() {
         ));
         const message = command.params?.message?.trim();
 
+        const unavailableRecipients = async (targets: string[]) => {
+          const availability = await xmtp.canMessage(targets.map(identifier));
+          return targets.filter((target) => !availability.get(target.toLowerCase()));
+        };
+
         if (command.action === "send") {
           if (!addresses[0]) {
             respond(payload.id, { ok: false, key: "missing_recipient" });
@@ -137,12 +142,26 @@ export function InjPassAgentBridge() {
             respond(payload.id, { ok: false, key: "missing_message" });
             return;
           }
+          const unavailable = await unavailableRecipients([addresses[0]]);
+          if (unavailable.length > 0) {
+            respond(payload.id, {
+              ok: false,
+              key: "recipient_unavailable",
+              data: { recipients: unavailable },
+            });
+            return;
+          }
           const conversation = await xmtp.conversations.newDmWithIdentifier(identifier(addresses[0]));
           await conversation.send(message);
           respond(payload.id, {
             ok: true,
             key: "omisper_sent",
-            data: { recipient: addresses[0], recipientCount: 1, conversationId: conversation.id },
+            data: {
+              recipient: addresses[0],
+              recipientCount: 1,
+              conversationId: conversation.id,
+              message,
+            },
           });
           return;
         }
@@ -156,12 +175,60 @@ export function InjPassAgentBridge() {
             respond(payload.id, { ok: false, key: "missing_message" });
             return;
           }
+          const unavailable = await unavailableRecipients(addresses);
+          if (unavailable.length > 0) {
+            respond(payload.id, {
+              ok: false,
+              key: "recipient_unavailable",
+              data: { recipients: unavailable },
+            });
+            return;
+          }
+          const conversationIds = await Promise.all(addresses.map(async (address) => {
+            const conversation = await xmtp.conversations.newDmWithIdentifier(identifier(address));
+            await conversation.send(message);
+            return conversation.id;
+          }));
+          respond(payload.id, {
+            ok: true,
+            key: "omisper_broadcast_sent",
+            data: {
+              recipientCount: addresses.length,
+              conversationIds,
+              message,
+            },
+          });
+          return;
+        }
+
+        if (command.action === "group") {
+          if (addresses.length < 2) {
+            respond(payload.id, { ok: false, key: "missing_recipient" });
+            return;
+          }
+          if (!message) {
+            respond(payload.id, { ok: false, key: "missing_message" });
+            return;
+          }
+          const unavailable = await unavailableRecipients(addresses);
+          if (unavailable.length > 0) {
+            respond(payload.id, {
+              ok: false,
+              key: "recipient_unavailable",
+              data: { recipients: unavailable },
+            });
+            return;
+          }
           const conversation = await xmtp.conversations.newGroupWithIdentifiers(addresses.map(identifier));
           await conversation.send(message);
           respond(payload.id, {
             ok: true,
-            key: "omisper_broadcast_sent",
-            data: { recipientCount: addresses.length, conversationId: conversation.id },
+            key: "omisper_group_sent",
+            data: {
+              recipientCount: addresses.length,
+              conversationId: conversation.id,
+              message,
+            },
           });
           return;
         }
