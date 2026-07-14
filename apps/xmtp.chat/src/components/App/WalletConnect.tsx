@@ -3,10 +3,12 @@ import { ConnectorSelect } from "@/components/App/ConnectorSelect";
 import { ConnectWallet } from "@/components/App/ConnectWallet";
 import { InjPassConnectButton } from "@/components/InjPassWallet";
 import { useInjPassWallet } from "@/hooks/useInjPassWallet";
+import { isEmbeddedInjPassMiniApp } from "@/services/injpass-wallet";
 
 export const WalletConnect = () => {
   const { isConnected, isConnecting } = useInjPassWallet();
   const injPassActive = isConnected || isConnecting;
+  const embeddedInInjPass = isEmbeddedInjPassMiniApp();
 
   return (
     <Stack gap="md">
@@ -23,11 +25,15 @@ export const WalletConnect = () => {
         <InjPassConnectButton />
       </Stack>
 
-      <Divider label="OR" labelPosition="center" />
+      {!embeddedInInjPass && (
+        <>
+          <Divider label="OR" labelPosition="center" />
 
-      {/* Traditional Web3 Wallets */}
-      <ConnectorSelect />
-      <ConnectWallet disabled={injPassActive} />
+          {/* Traditional Web3 Wallets */}
+          <ConnectorSelect />
+          <ConnectWallet disabled={injPassActive} />
+        </>
+      )}
     </Stack>
   );
 };

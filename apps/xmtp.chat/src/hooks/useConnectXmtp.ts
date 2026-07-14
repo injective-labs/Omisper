@@ -7,6 +7,7 @@ import { createEOASigner, createInjPassSigner, createSCWSigner } from "@/helpers
 import { useEphemeralSigner } from "@/hooks/useEphemeralSigner";
 import { useInjPassWallet } from "@/hooks/useInjPassWallet";
 import { useSettings } from "@/hooks/useSettings";
+import { isEmbeddedInjPassMiniApp } from "@/services/injpass-wallet";
 
 export const useConnectXmtp = () => {
   const navigate = useNavigate();
@@ -15,6 +16,7 @@ export const useConnectXmtp = () => {
   const account = useAccount();
   const { signMessageAsync } = useSignMessage();
   const injPass = useInjPassWallet();
+  const embeddedInInjPass = isEmbeddedInjPassMiniApp();
   const {
     blockchain,
     encryptionKey,
@@ -41,6 +43,30 @@ export const useConnectXmtp = () => {
     // if client is already connected, return
     if (client) {
       console.log('❌ Client already connected, returning');
+      return;
+    }
+
+    // An embedded Omisper session belongs to the INJ Pass host. Never fall
+    // through to a previously remembered wagmi/MetaMask account while the
+    // host session is still arriving.
+    if (embeddedInInjPass) {
+      if (!injPass.isConnected || !injPass.address) {
+        console.log('⏳ Waiting for the embedded INJ Pass wallet session');
+        return;
+      }
+      console.log('✅ Using embedded INJ Pass wallet:', injPass.address);
+      void initialize({
+        dbEncryptionKey: encryptionKey
+          ? hexToUint8Array(encryptionKey)
+          : undefined,
+        env: environment,
+        loggingLevel,
+        signer: createInjPassSigner(
+          injPass.address,
+          (message: string) => injPass.signMessage(message),
+        ),
+      });
+      setAutoConnect(true);
       return;
     }
 
@@ -115,6 +141,7 @@ export const useConnectXmtp = () => {
     account.chainId,
     signMessageAsync,
     setAutoConnect,
+    embeddedInInjPass,
     injPass.isConnected,
     injPass.address,
     injPass.signMessage,
