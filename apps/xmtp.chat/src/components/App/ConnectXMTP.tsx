@@ -8,6 +8,7 @@ import { useConnectXmtp } from "@/hooks/useConnectXmtp";
 import { useEphemeralSigner } from "@/hooks/useEphemeralSigner";
 import { useInjPassWallet } from "@/hooks/useInjPassWallet";
 import { useSettings } from "@/hooks/useSettings";
+import { isEmbeddedInjPassMiniApp } from "@/services/injpass-wallet";
 
 export type ConnectXMTPProps = {
   onDisconnectWallet: () => void;
@@ -23,8 +24,11 @@ export const ConnectXMTP = ({ onDisconnectWallet }: ConnectXMTPProps) => {
   } = useInjPassWallet();
   const { connect, loading } = useConnectXmtp();
   const { ephemeralAccountEnabled } = useSettings();
+  const embeddedInInjPass = isEmbeddedInjPassMiniApp();
 
-  const anyConnected = isConnected || ephemeralAccountEnabled || injPassConnected;
+  const anyConnected = embeddedInInjPass
+    ? injPassConnected
+    : isConnected || ephemeralAccountEnabled || injPassConnected;
 
   const handleConnectClick = useCallback(() => {
     connect();

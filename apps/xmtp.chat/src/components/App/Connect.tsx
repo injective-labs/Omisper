@@ -9,11 +9,15 @@ import { useConnectXmtp } from "@/hooks/useConnectXmtp";
 import { useInjPassWallet } from "@/hooks/useInjPassWallet";
 import { useRedirect } from "@/hooks/useRedirect";
 import { useSettings } from "@/hooks/useSettings";
+import { isEmbeddedInjPassMiniApp } from "@/services/injpass-wallet";
 
 export const Connect = () => {
   const { isConnected, disconnect, loading } = useConnectWallet();
   const { isConnected: injPassConnected, disconnect: injPassDisconnect } = useInjPassWallet();
-  const anyWalletConnected = isConnected || injPassConnected;
+  const embeddedInInjPass = isEmbeddedInjPassMiniApp();
+  const anyWalletConnected = embeddedInInjPass
+    ? injPassConnected
+    : isConnected || injPassConnected;
   const {
     environment,
     ephemeralAccountEnabled,

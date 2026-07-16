@@ -18,6 +18,7 @@ import { CreateGroupModal } from "@/components/Conversations/CreateGroupModal";
 import { IdentityModal } from "@/components/Identity/IdentityModal";
 import { InboxTools } from "@/components/InboxTools/InboxTools";
 import { InboxToolsLayout } from "@/components/InboxTools/InboxToolsLayout";
+import { InjPassAgentBridge } from "@/components/InjPassAgentBridge";
 import { MessageModal } from "@/components/Messages/MessageModal";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { useSettings } from "@/hooks/useSettings";
@@ -28,6 +29,7 @@ export const App: React.FC = () => {
 
   return (
     <>
+      <InjPassAgentBridge />
       <ErrorModal />
       <Routes>
         <Route path="/" element={<BasicLayout />}>
