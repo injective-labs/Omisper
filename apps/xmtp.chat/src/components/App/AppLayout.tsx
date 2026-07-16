@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Outlet, useLocation, useNavigate, useParams } from "react-router";
 import { AppHeader } from "@/components/App/AppHeader";
 import { Disclaimer } from "@/components/App/Disclaimer";
+import { getMissingClientRedirect } from "@/components/App/appLayoutRedirect";
 import { ConversationsNavbar } from "@/components/Conversations/ConversationsNavbar";
 import { LoadingMessage } from "@/components/LoadingMessage";
 import { useXMTP } from "@/contexts/XMTPContext";
@@ -65,14 +66,20 @@ export const AppLayout: React.FC = () => {
   }, [isMobile, conversationId, close, open]);
 
   useEffect(() => {
-    if (!client) {
-      // save the current path to redirect to it after the client is initialized
-      if (location.pathname !== "/" && location.pathname !== "/disconnect") {
-        setRedirectUrl(`${location.pathname}${location.search}`);
-      }
-      void navigate("/");
-    }
-  }, []);
+    if (client) return;
+
+    const redirect = getMissingClientRedirect(
+      location.pathname,
+      location.search,
+    );
+    if (!redirect) return;
+
+    // Preserve the active conversation, then return to the connection screen.
+    // This effect must react to a client disappearing after mount (for example
+    // while switching the INJ Pass host wallet), not only on first render.
+    setRedirectUrl(redirect);
+    void navigate("/");
+  }, [client, location.pathname, location.search, navigate, setRedirectUrl]);
 
   // When injpass disconnects remotely (e.g. user disconnects inside the iframe),
   // also clear the XMTP client so the existing logic above redirects to "/"
