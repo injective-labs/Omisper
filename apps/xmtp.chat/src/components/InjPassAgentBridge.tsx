@@ -63,6 +63,25 @@ function short(value: string, start = 6, end = 4): string {
   return value.length > start + end ? `${value.slice(0, start)}...${value.slice(-end)}` : value;
 }
 
+type AgentConversation = Awaited<ReturnType<Client<ContentTypes>["conversations"]["list"]>>[number];
+
+// XMTP identifies people by inbox ID; the host should show their wallet address.
+async function memberAddresses(conversation: AgentConversation): Promise<Map<string, string>> {
+  const members = await conversation.members();
+  return new Map(members.flatMap((member) => {
+    const address = member.accountIdentifiers.find((item) => item.identifierKind === "Ethereum")?.identifier;
+    return address ? [[member.inboxId, address] as const] : [];
+  }));
+}
+
+async function conversationTitle(conversation: AgentConversation, ownInboxId: string | undefined): Promise<string> {
+  const name = (conversation as unknown as { name?: string }).name;
+  if (name) return name;
+  const addresses = await memberAddresses(conversation);
+  const peers = [...addresses].filter(([inboxId]) => inboxId !== ownInboxId).map(([, address]) => short(address));
+  return peers.length > 0 ? peers.join(", ") : short(conversation.id);
+}
+
 export function InjPassAgentBridge() {
   const { client, initialize } = useXMTP();
   const { encryptionKey, environment, loggingLevel } = useSettings();
@@ -241,13 +260,14 @@ export function InjPassAgentBridge() {
           await xmtp.conversations.sync();
           const conversation = await xmtp.conversations.getDmByIdentifier(identifier(addresses[0]));
           const messages = conversation ? await conversation.messages({ limit: 20n }) : [];
+          const senders = conversation ? await memberAddresses(conversation) : new Map<string, string>();
           respond(payload.id, {
             ok: true,
             key: "omisper_history",
             data: {
               target: addresses[0],
               messages: messages.slice(-10).map((item) => ({
-                sender: short(item.senderInboxId),
+                sender: short(senders.get(item.senderInboxId) || item.senderInboxId),
                 content: contentText(item.content),
               })),
             },
@@ -260,10 +280,9 @@ export function InjPassAgentBridge() {
           const conversations = await xmtp.conversations.list();
           const latest = await Promise.all(conversations.slice(0, 12).map(async (conversation) => {
             const last = await conversation.lastMessage();
-            const name = (conversation as unknown as { name?: string }).name;
             return {
               id: conversation.id,
-              title: name || short(conversation.id),
+              title: await conversationTitle(conversation, xmtp.inboxId),
               preview: last ? contentText(last.content) : "",
               sentAt: last?.sentAtNs.toString() || "0",
             };
