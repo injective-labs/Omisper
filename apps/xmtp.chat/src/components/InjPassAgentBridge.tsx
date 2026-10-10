@@ -1,4 +1,4 @@
-import type { Client, Identifier } from "@xmtp/browser-sdk";
+import { GroupMessageKind, SortDirection, type Client, type Identifier } from "@xmtp/browser-sdk";
 import { useEffect, useRef } from "react";
 import { hexToUint8Array } from "uint8array-extras";
 import { type ContentTypes, useXMTP } from "@/contexts/XMTPContext";
@@ -72,6 +72,16 @@ async function memberAddresses(conversation: AgentConversation): Promise<Map<str
     const address = member.accountIdentifiers.find((item) => item.identifierKind === "Ethereum")?.identifier;
     return address ? [[member.inboxId, address] as const] : [];
   }));
+}
+
+// Newest application messages first from the local database, returned oldest-first.
+async function recentMessages(conversation: AgentConversation, limit: bigint) {
+  const messages = await conversation.messages({
+    limit,
+    direction: SortDirection.Descending,
+    kind: GroupMessageKind.Application,
+  });
+  return messages.reverse();
 }
 
 async function conversationTitle(conversation: AgentConversation, ownInboxId: string | undefined): Promise<string> {
@@ -257,17 +267,19 @@ export function InjPassAgentBridge() {
             respond(payload.id, { ok: false, key: "missing_recipient" });
             return;
           }
-          await xmtp.conversations.sync();
+          // syncAll also pulls new messages into conversations this device already has.
+          await xmtp.conversations.syncAll();
           const conversation = await xmtp.conversations.getDmByIdentifier(identifier(addresses[0]));
-          const messages = conversation ? await conversation.messages({ limit: 20n }) : [];
+          const messages = conversation ? await recentMessages(conversation, 10n) : [];
           const senders = conversation ? await memberAddresses(conversation) : new Map<string, string>();
           respond(payload.id, {
             ok: true,
             key: "omisper_history",
             data: {
               target: addresses[0],
-              messages: messages.slice(-10).map((item) => ({
+              messages: messages.map((item) => ({
                 sender: short(senders.get(item.senderInboxId) || item.senderInboxId),
+                fromSelf: item.senderInboxId === xmtp.inboxId,
                 content: contentText(item.content),
               })),
             },
@@ -276,15 +288,22 @@ export function InjPassAgentBridge() {
         }
 
         if (command.action === "inbox") {
-          await xmtp.conversations.sync();
+          await xmtp.conversations.syncAll();
           const conversations = await xmtp.conversations.list();
           const latest = await Promise.all(conversations.slice(0, 12).map(async (conversation) => {
-            const last = await conversation.lastMessage();
+            const messages = await recentMessages(conversation, 5n);
+            const senders = await memberAddresses(conversation);
+            const last = messages[messages.length - 1];
             return {
               id: conversation.id,
               title: await conversationTitle(conversation, xmtp.inboxId),
               preview: last ? contentText(last.content) : "",
               sentAt: last?.sentAtNs.toString() || "0",
+              messages: messages.map((item) => ({
+                sender: short(senders.get(item.senderInboxId) || item.senderInboxId),
+                fromSelf: item.senderInboxId === xmtp.inboxId,
+                content: contentText(item.content),
+              })),
             };
           }));
           latest.sort((left, right) => {

@@ -11,6 +11,11 @@ import {
   usePermissions,
 } from "@/stores/inbox/hooks";
 
+// Conversations whose stored history has been read in full this session. Until
+// then lastSentAt may only reflect messages streamed in while the list was open,
+// and reading after it would hide everything older.
+const loadedHistory = new Set<string>();
+
 export const useConversation = (conversationId: string) => {
   const { addMessages } = useActions();
   const conversation = useConversationState(conversationId);
@@ -47,10 +52,12 @@ export const useConversation = (conversationId: string) => {
     setLoading(true);
 
     try {
+      const since = loadedHistory.has(conversation.id) ? lastSentAt : undefined;
       const msgs = await conversation.messages({
-        ...(lastSentAt !== undefined && { sentAfterNs: lastSentAt }),
+        ...(since !== undefined && { sentAfterNs: since }),
       });
       await addMessages(conversation.id, msgs);
+      loadedHistory.add(conversation.id);
       return msgs;
     } finally {
       setLoading(false);
